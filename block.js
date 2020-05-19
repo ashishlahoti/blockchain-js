@@ -11,6 +11,7 @@ class Block {
         this.nonce = proofOfWork.nonce;
     }
 
+     /* Genesis Block */
     static genesis() {
         return new this(new Date(), 
             "",
@@ -18,23 +19,26 @@ class Block {
         );
     }
 
+    /* Block Mining */
     static mineBlock(previousBlock, record, difficultyLevel) {
         const timestamp = new Date();
         const previousHash = previousBlock.hash;
         return new Block(timestamp, previousHash, record, difficultyLevel);
     }
 
+    /* Generate Hash using SHA256 */
     static computeHash(message){
-        return { hash: SHA256(message).toString(), nonce: 0 };
+        return SHA256(message).toString();
     }
 
+    /* Proof of Work */
     proofOfWork(difficultyLevel) {
         const message = this.timestamp + JSON.stringify(this.record) + this.previousHash;
         if(difficultyLevel){          
             const leadingZeros = "0".repeat(difficultyLevel);
             let nonce = 0;
             while(true){
-                let hash =  Block.computeHash(message + nonce).hash;
+                let hash =  Block.computeHash(message + nonce);
                 if(hash.substring(0, difficultyLevel) == leadingZeros){             
                     return {
                         hash,
@@ -44,7 +48,10 @@ class Block {
                 nonce++;
             }
         }else{
-            return Block.computeHash(message);
+            return {
+                hash: Block.computeHash(message),
+                nonce: 0
+            }
         }       
     }
 }
